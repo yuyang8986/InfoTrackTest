@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\InfoTrack.Core\InfoTrackTest.Core.csproj" />
+    <ProjectReference Include="..\InfoTrackTest.Application\InfoTrackTest.Application.csproj" />
+  </ItemGroup>
+
+</Project>

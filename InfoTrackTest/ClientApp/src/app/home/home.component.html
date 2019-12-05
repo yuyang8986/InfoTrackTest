@@ -1,0 +1,19 @@
+<div class="container">
+  <h1>InfoTrack Test</h1>
+  <button (click)="check()">Click to check infotrack.com.au SEO</button>
+
+
+  <p *ngIf="response"> Total Counts of first 100 result: {{response.results.length}}</p>
+  <table class='table table-striped' aria-labelledby="tableLabel" *ngIf="response">
+    <thead>
+      <tr>
+        <th>Link</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let result of response.results">
+        <td>{{ result.title }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
