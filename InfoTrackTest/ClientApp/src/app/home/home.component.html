@@ -3,16 +3,16 @@
   <button (click)="check()">Click to check infotrack.com.au SEO</button>
 
 
-  <p *ngIf="response"> Total Counts of first 100 result: {{response.results.length}}</p>
+  <p *ngIf="response"> Total Count of first 100 result: {{response.results.length}}</p>
   <table class='table table-striped' aria-labelledby="tableLabel" *ngIf="response">
     <thead>
       <tr>
-        <th>Link</th>
+        <th>Position</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let result of response.results">
-        <td>{{ result.title }}</td>
+        <td>{{ result.index }}</td>
       </tr>
     </tbody>
   </table>

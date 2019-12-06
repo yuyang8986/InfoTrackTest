@@ -28,6 +28,7 @@ export class HomeComponent {
 
 interface IResult {
     title: string;
+    index:number;
 }
 
 interface IResponse {
