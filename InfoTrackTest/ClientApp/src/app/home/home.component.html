@@ -1,10 +1,12 @@
 <div class="container">
-  <h1>InfoTrack Test</h1>
-  <button (click)="check()">Click to check infotrack.com.au SEO</button>
+  <h1>A+ CPTED Report Automation Demo</h1>
+  <!--<button (click)="fetchArchistarSuggest()">Click to check start</button>-->
+  <br/>
+  <h3>Please enter address to start</h3>
 
-
-  <p *ngIf="response"> Total Count of first 100 result: {{response.results.length}}</p>
-  <table class='table table-striped' aria-labelledby="tableLabel" *ngIf="response">
+  <input type="text" placeholder="Example: 1-7 Castlereagh Street Sydney 2000 " #box (keyup.enter)="fetchArchistarSuggest(box.value)"/>
+  <p *ngIf="archiStarResponse"> Fetched: {{archiStarResponse.result.propertyID}}</p>
+  <!--<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="response">
     <thead>
       <tr>
         <th>Position</th>
@@ -15,5 +17,5 @@
         <td>{{ result.index }}</td>
       </tr>
     </tbody>
-  </table>
+  </table>-->
 </div>
