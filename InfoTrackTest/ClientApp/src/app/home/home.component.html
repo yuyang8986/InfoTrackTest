@@ -1,11 +1,34 @@
 <div class="container">
   <h1>A+ CPTED Report Automation Demo</h1>
   <!--<button (click)="fetchArchistarSuggest()">Click to check start</button>-->
-  <br/>
+  <br />
   <h3>Please enter address to start</h3>
+  <p>Example: 1-7 Castlereagh Street Sydney 2000</p>
+  <input type="text" placeholder=" " #box (keyup.enter)="fetchArchistarSuggest(box.value)" />
+  <br />
+  <div *ngIf="archiStarResponse">
+    <br />
+    <h4>Fetched Archistar Property Suggestion</h4>
 
-  <input type="text" placeholder="Example: 1-7 Castlereagh Street Sydney 2000 " #box (keyup.enter)="fetchArchistarSuggest(box.value)"/>
-  <p *ngIf="archiStarResponse"> Fetched: {{archiStarResponse.result.propertyID}}</p>
+    <p>ID: {{archiStarResponse.result.propertyID}}</p>
+    <p>Address: {{archiStarResponse.result.listingAddress}}</p>
+    <p>RegionId: {{archiStarResponse.result.regionID}}</p>
+
+  </div>
+
+  <div *ngIf="planningResponse">
+    <br />
+    <h4>Fetched Archistar Property Planning Analysis</h4>
+
+    <p>property_details: center_lat {{planningResponse.result.Property.property_details.center_lat}} </p>
+    <p>property_details: center_long {{planningResponse.result.Property.property_details.center_long}} </p>
+    <p>property_details: lot_identifier {{planningResponse.result.Property.property_details.lot_identifier}}</p>
+    <p>property_analysis - permitted_use_duplex: {{planningResponse.result.Property.property_analysis.permitted_use_duplex}}</p>
+    <p>property_planning_details: zoning : {{planningResponse.result.Property.property_planning_details.zoning.code}}</p>
+    <p>property_planning_details: lga: {{planningResponse.result.Property.property_planning_details.lga}}</p>
+
+
+  </div>
   <!--<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="response">
     <thead>
       <tr>
