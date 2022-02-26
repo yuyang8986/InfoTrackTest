@@ -1,97 +1,169 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ViewChild } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-
+import { GoogleMap, GoogleMapsModule } from "@angular/google-maps";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 @Component({
-    selector: 'app-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['home.css']
+  selector: "app-home",
+  templateUrl: "./home.component.html",
+  styleUrls: ["home.css"],
 })
 export class HomeComponent {
   public response: IResponse;
   public archiStarResponse: IArchistartResult;
   public planningResponse: IPlanningResponse;
 
-    public loading: boolean;
-    private _http: HttpClient;
+  public loading: boolean;
+  private _http: HttpClient;
   private _baseUrl: string;
 
   private apiKey = "C1xvLXs4X17oJKAUNUNw9ak4U4cpQLB5quqDcpeh";
+  private streetView: google.maps.StreetViewPanorama;
   private dummybody = {
     streetAddress: "1-7 Castlereagh Street",
     suburb: "Sydney",
-    postCode: 2000
+    postCode: 2000,
   };
 
-    constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
-        this._http = http;
-        this._baseUrl = baseUrl;
-        this.loading = false;
+  constructor(http: HttpClient, @Inject("BASE_URL") baseUrl: string) {
+    this._http = http;
+    this._baseUrl = baseUrl;
+    this.loading = false;
   }
 
+  @ViewChild(GoogleMap) map!: GoogleMap;
+
+  center: google.maps.LatLngLiteral;
   generatePDF() {
     let docDefinition = {
-      header: 'C#Corner PDF Header',
-      content: 'Sample PDF generated with Angular and PDFMake for C#Corner Blog'
+      header: "C#Corner PDF Header",
+      content:
+        "Sample PDF generated with Angular and PDFMake for C#Corner Blog",
     };
 
     pdfMake.createPdf(docDefinition).open();
   }
 
-    check() {
-      this.loading = true;
-        this._http.get<IResponse>(this._baseUrl + "search").subscribe(
-            res => { this.response = res }, error => console.error(error)
-        );
-        this.loading = false;
+  ngAfterViewInit() {
+    // this.streetView = this.map.getStreetView();
+
+    // this.streetView.setOptions({
+    //    position: { lat: 38.9938386, lng: -77.2515373 },
+    //    pov: { heading: 70, pitch: -10 },
+    // });
+
+    // this.streetView.setVisible(true);
   }
 
-  fetchArchistarSuggest(street:string, city:string, postCode:number) {
+
+  check() {
     this.loading = true;
-    const headers = { 'content-type': 'application/json', "x-api-key": this.apiKey };
+    this._http.get<IResponse>(this._baseUrl + "search").subscribe(
+      (res) => {
+        this.response = res;
+      },
+      (error) => console.error(error)
+    );
+    this.loading = false;
+  }
+
+  fetchArchistarSuggest(street: string, city: string, postCode: number) {
+    this.loading = true;
+    const headers = {
+      "content-type": "application/json",
+      "x-api-key": this.apiKey,
+    };
     const body = JSON.stringify({
       streetAddress: street,
       suburb: city,
-      postCode: Number.parseInt(postCode.toString())
+      postCode: Number.parseInt(postCode.toString()),
     });
-    this._http.post<IArchistartResult>("https://api.archistar.ai/v1/property/suggest"
-      , body, { 'headers': headers }
-    ).subscribe(
-     
-      res => {
-        alert("result successfully fetched from archistart ai")
-        this.archiStarResponse = res;
-        console.log(res);
-        this._http.post<IPlanningResponse>("https://api.archistar.ai/v1/property/planning-essentials"
-          , {
-            propertyID: this.archiStarResponse.result.propertyID
-          }, { 'headers': headers }
-        ).subscribe(
+    this._http
+      .post<IArchistartResult>(
+        "https://api.archistar.ai/v1/property/suggest",
+        body,
+        { headers: headers }
+      )
+      .subscribe(
+        (res) => {
+          alert("result successfully fetched from archistart ai");
+          this.archiStarResponse = res;
+          console.log(res);
+          this._http
+            .post<IPlanningResponse>(
+              "https://api.archistar.ai/v1/property/planning-essentials",
+              {
+                propertyID: this.archiStarResponse.result.propertyID,
+              },
+              { headers: headers }
+            )
+            .subscribe(
+              (res) => {
+                this.planningResponse = res;
+                console.log(res);
+                console.log(
+                  this.planningResponse.result.Property.property_details
+                    .center_lat,
+                  this.planningResponse.result.Property.property_details
+                    .center_long
+                );
 
-          res => { this.planningResponse = res; console.log(res); }, error => console.error(error)
-        );
-      }, error => console.error(error)
-    );
+              
+                // -33.86620630039655, 151.20977064237633
+                this.center = {
+                  lat: Number.parseInt(this.planningResponse.result.Property.property_details.center_lat),
+                  lng: Number.parseInt(this.planningResponse.result.Property.property_details.center_long)
+                 };
+                 this.center = {
+                  lat: -33.86620630039655,
+                  lng: 151.20977064237633
+                 };
+                 
+                // this.streetView.setOptions({
+                //   position: {
+                //     lat: Number.parseInt(
+                //       this.planningResponse.result.Property.property_details.center_lat.substring(
+                //         0,
+                //         8
+                //       )
+                //     ),
+                //     lng: Number.parseInt(
+                //       this.planningResponse.result.Property.property_details.center_long.substring(
+                //         0,
+                //         8
+                //       )
+                //     ),
+                //   },
+                //   pov: { heading: 70, pitch: -10 },
+                // });
+
+                // console.log(this.streetView);
+                // this.streetView.setVisible(true);
+              },
+              (error) => console.error(error)
+            );
+        },
+        (error) => console.error(error)
+      );
     this.loading = false;
   }
 }
 
 interface IResult {
-    title: string;
-    index:number;
+  title: string;
+  index: number;
 }
 
 interface IArchistartResult {
-  result: {propertyID:string, listingAddress:string, regionID:string }
+  result: { propertyID: string; listingAddress: string; regionID: string };
 }
 
 interface IResponse {
-    success: boolean;
-    message: string;
-    results: IResult[];
+  success: boolean;
+  message: string;
+  results: IResult[];
 }
 
 export interface PropertyDetails {
@@ -130,10 +202,10 @@ export interface Prohibited {
 }
 
 export interface ArrNotificationsPermittedUse {
-        Permittedwithconsent: PermittedWithConsent[];
-        Permittedwithoutconsent: PermittedWithoutConsent[];
-        Prohibited: Prohibited[];
-    }
+  Permittedwithconsent: PermittedWithConsent[];
+  Permittedwithoutconsent: PermittedWithoutConsent[];
+  Prohibited: Prohibited[];
+}
 
 export interface PropertyPlanningDetails {
   zoning: Zoning;
@@ -160,7 +232,7 @@ export interface PropertyAnalysis {
   permitted_use_mixeduse: boolean;
   permitted_use_townhouse?: any;
 }
-  
+
 export interface Property {
   property_details: PropertyDetails;
   property_planning_details: PropertyPlanningDetails;

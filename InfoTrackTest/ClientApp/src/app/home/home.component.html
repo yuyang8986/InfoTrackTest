@@ -5,21 +5,6 @@
   <!--<h3>Please enter address to start</h3>-->
 
   <br />
-
-
-  <!--<button (click)="generatePDF()">Generate PDF</button>-->
-  <!--<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="response">
-    <thead>
-      <tr>
-        <th>Position</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let result of response.results">
-        <td>{{ result.index }}</td>
-      </tr>
-    </tbody>
-  </table>-->
 </div>
 
 
@@ -106,4 +91,13 @@
       <button type="button" name="" class="btn btn-secondary btn-lg btn-block" (click)="generatePDF()">Generate Report</button>
     </div>
   </div>
+</div>
+
+
+
+
+<div class="my-google-map">
+  <google-map [center]="center">
+     <!-- <map-marker [position]="marker.position"></map-marker> -->
+  </google-map>
 </div>
