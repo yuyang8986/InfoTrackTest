@@ -22,7 +22,7 @@ namespace InfoTrackTest.Application.Crawler
 
         public HttpWebRequest InitRequest(Uri uri = null)
         {
-            var request = (HttpWebRequest)WebRequest.Create(uri ?? new Uri(Strings.GoogleSearchUrl + _keywords));
+            var request = (HttpWebRequest)WebRequest.Create(uri ?? new Uri(Strings.CrimeToolWebsite));
             request.Accept = "*/*";
             request.ContentType = "application/x-www.form-urlencoded";
             request.AllowAutoRedirect = false;
@@ -82,9 +82,11 @@ namespace InfoTrackTest.Application.Crawler
             var response = (HttpWebResponse)await request.GetResponseAsync();
             var stream = response.GetResponseStream();
 
+            //IWebElement lastPageElement = driver.FindElement(By.XPath("//a[@class='btn last']"));
+
             var reader = new StreamReader(stream ?? throw new InvalidOperationException(), Encoding.UTF8);
             var source = await reader.ReadToEndAsync();
-            MatchCollection matchCollection = Regex.Matches(source, "<\\s*cite[^>]*>(.*?)<\\s*/\\s*cite>", RegexOptions.IgnoreCase);
+            MatchCollection matchCollection = Regex.Matches(source, "Graphs", RegexOptions.IgnoreCase);
             for (int i = 0; i < matchCollection.Count; i++)
             {
                 results.Add(new InfoTrackSearchResult
@@ -95,6 +97,8 @@ namespace InfoTrackTest.Application.Crawler
             }
 
             return Tuple.Create(results, source);
+
+
         }
 
         public InfoTrackCrawler(string keywords) : base(keywords)

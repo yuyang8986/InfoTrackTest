@@ -1,6 +1,10 @@
 import { Component, Inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
 @Component({
     selector: 'app-home',
     templateUrl: './home.component.html',
@@ -26,7 +30,16 @@ export class HomeComponent {
         this._http = http;
         this._baseUrl = baseUrl;
         this.loading = false;
-    }
+  }
+
+  generatePDF() {
+    let docDefinition = {
+      header: 'C#Corner PDF Header',
+      content: 'Sample PDF generated with Angular and PDFMake for C#Corner Blog'
+    };
+
+    pdfMake.createPdf(docDefinition).open();
+  }
 
     check() {
       this.loading = true;
@@ -36,10 +49,14 @@ export class HomeComponent {
         this.loading = false;
   }
 
-  fetchArchistarSuggest(address:string) {
+  fetchArchistarSuggest(street:string, city:string, postCode:number) {
     this.loading = true;
     const headers = { 'content-type': 'application/json', "x-api-key": this.apiKey };
-    const body = JSON.stringify(this.dummybody);
+    const body = JSON.stringify({
+      streetAddress: street,
+      suburb: city,
+      postCode: Number.parseInt(postCode.toString())
+    });
     this._http.post<IArchistartResult>("https://api.archistar.ai/v1/property/suggest"
       , body, { 'headers': headers }
     ).subscribe(
@@ -143,7 +160,7 @@ export interface PropertyAnalysis {
   permitted_use_mixeduse: boolean;
   permitted_use_townhouse?: any;
 }
-
+  
 export interface Property {
   property_details: PropertyDetails;
   property_planning_details: PropertyPlanningDetails;
