@@ -15,9 +15,9 @@ import { GoogleMapsModule } from '@angular/google-maps'
         // GoogleMapsModule
     ],
     imports: [
-        BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
         HttpClientModule,
         GoogleMapsModule,
+        BrowserModule,
         NgChartsModule,
         FormsModule,
         RouterModule.forRoot([

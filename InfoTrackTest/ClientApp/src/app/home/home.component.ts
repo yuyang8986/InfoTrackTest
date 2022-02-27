@@ -36,89 +36,139 @@ export class HomeComponent {
     this.loading = false;
   }
 
-  public lineChartData: ChartConfiguration['data'] = {
+  public lineChartData: ChartConfiguration["data"] = {
     datasets: [
       {
-        data: [ 65, 59, 80, 81, 56, 55, 40 ],
-        label: 'Series A',
-        backgroundColor: 'rgba(148,159,177,0.2)',
-        borderColor: 'rgba(148,159,177,1)',
-        pointBackgroundColor: 'rgba(148,159,177,1)',
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: 'rgba(148,159,177,0.8)',
-        fill: 'origin',
+        data: [1, 0, 4, 1, 1, 0, 0],
+        label: "Crime Report: Homicide - Murder in 2021",
+        backgroundColor: "rgba(148,159,177,0.2)",
+        borderColor: "rgba(148,159,177,1)",
+        pointBackgroundColor: "rgba(148,159,177,1)",
+        pointBorderColor: "#fff",
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: "rgba(148,159,177,0.8)",
+        fill: "origin",
       },
-      {
-        data: [ 28, 48, 40, 19, 86, 27, 90 ],
-        label: 'Series B',
-        backgroundColor: 'rgba(77,83,96,0.2)',
-        borderColor: 'rgba(77,83,96,1)',
-        pointBackgroundColor: 'rgba(77,83,96,1)',
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: 'rgba(77,83,96,1)',
-        fill: 'origin',
-      },
-      {
-        data: [ 180, 480, 770, 90, 1000, 270, 400 ],
-        label: 'Series C',
-        yAxisID: 'y-axis-1',
-        backgroundColor: 'rgba(255,0,0,0.3)',
-        borderColor: 'red',
-        pointBackgroundColor: 'rgba(148,159,177,1)',
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: 'rgba(148,159,177,0.8)',
-        fill: 'origin',
-      }
     ],
-    labels: [ 'January', 'February', 'March', 'April', 'May', 'June', 'July' ]
+    labels: ["Apr", "May", "June", "July", "August", "Sep", "Oct"],
   };
 
-  public lineChartOptions: ChartConfiguration['options'] = {
+  public lineChartOptions: ChartConfiguration["options"] = {
     elements: {
       line: {
-        tension: 0.5
-      }
+        tension: 0.5,
+      },
     },
     scales: {
       // We use this empty structure as a placeholder for dynamic theming.
       x: {},
-      'y-axis-0':
-        {
-          position: 'left',
-        },
-      'y-axis-1': {
-        position: 'right',
+      "y-axis-0": {
+        position: "left",
+      },
+      "y-axis-1": {
+        position: "right",
         grid: {
-          color: 'rgba(255,0,0,0.3)',
+          color: "rgba(255,0,0,0.3)",
         },
         ticks: {
-          color: 'red'
-        }
-      }
+          color: "red",
+        },
+      },
     },
 
     plugins: {
       legend: { display: true },
-     
-      
-    }
+    },
   };
 
-  public lineChartType: ChartType = 'line';
+  public lineChartType: ChartType = "line";
 
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
   @ViewChild(GoogleMap) map!: GoogleMap;
 
   center: google.maps.LatLngLiteral;
-  generatePDF() {
+
+  getBase64ImageFromURL(url) {
+    return new Promise((resolve, reject) => {
+      var img = new Image();
+      img.setAttribute("crossOrigin", "anonymous");
+      img.onload = () => {
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        var dataURL = canvas.toDataURL("image/png");
+        resolve(dataURL);
+      };
+      img.onerror = error => {
+        reject(error);
+      };
+      img.src = url;
+    });
+  }
+  async generatePDF() {
     let docDefinition = {
-      header: "C#Corner PDF Header",
-      content:
-        "Sample PDF generated with Angular and PDFMake for C#Corner Blog",
+      header: "A+ Crime Report Demo",
+      content: [
+        {
+          text: "Crime Report",
+          fontSize: 16,
+          alignment: "center",
+          color: "#047886",
+        },
+        {
+          columns: [
+            [
+              {
+                text:
+                  "PropertyID: " +
+                  this.planningResponse.result.Property.propertyID,
+                bold: true,
+              },
+              {
+                text:
+                  "Lat: " +
+                  this.planningResponse.result.Property.property_details
+                    .center_lat,
+              },
+              {
+                text:
+                  "Lng: " +
+                  this.planningResponse.result.Property.property_details
+                    .center_long,
+              },
+              {
+                text:
+                  "LGA: " +
+                  this.planningResponse.result.Property.property_details
+                    .localities,
+              },
+            ],
+            [
+              {
+                text: `Date: ${new Date().toLocaleString()}`,
+                alignment: "right",
+              },
+            ],
+          ],
+        },
+        {
+          image: await this.getBase64ImageFromURL(
+            "https://etaccountingstorage.blob.core.windows.net/gis/123_1_50.png?sp=r&st=2022-02-27T07:53:58Z&se=2022-02-27T15:53:58Z&sv=2020-08-04&sr=b&sig=3VJqNz%2FZykvp5nCcp2rVTICEDASMI1XcSiKHmSjeCs8%3D"
+          )
+        }  
+      
+      ],
+      styles: {
+        sectionHeader: {
+          bold: true,
+          decoration: "underline",
+          fontSize: 14,
+          margin: [15, 15, 15, 15],
+        },
+      },
     };
 
     pdfMake.createPdf(docDefinition).open();
@@ -150,12 +200,12 @@ export class HomeComponent {
   }
 
   ngAfterViewInit() {
-    // this.streetView = this.map.getStreetView();
-    // this.streetView.setOptions({
-    //    position: { lat: 38.9938386, lng: -77.2515373 },
-    //    pov: { heading: 70, pitch: -10 },
-    // });
-    // this.streetView.setVisible(true);
+    this.streetView = this.map.getStreetView();
+    this.streetView.setOptions({
+      position: { lat: 38.9938386, lng: -77.2515373 },
+      pov: { heading: 70, pitch: -10 },
+    });
+    this.streetView.setVisible(true);
   }
 
   check() {
@@ -221,31 +271,31 @@ export class HomeComponent {
                       .center_long
                   ),
                 };
-                this.center = {
-                  lat: -33.86620630039655,
-                  lng: 151.20977064237633,
-                };
+                // this.center = {
+                //   lat: -33.86620630039655,
+                //   lng: 151.20977064237633,
+                // };
 
-                // this.streetView.setOptions({
-                //   position: {
-                //     lat: Number.parseInt(
-                //       this.planningResponse.result.Property.property_details.center_lat.substring(
-                //         0,
-                //         8
-                //       )
-                //     ),
-                //     lng: Number.parseInt(
-                //       this.planningResponse.result.Property.property_details.center_long.substring(
-                //         0,
-                //         8
-                //       )
-                //     ),
-                //   },
-                //   pov: { heading: 70, pitch: -10 },
-                // });
+                this.streetView.setOptions({
+                  position: {
+                    lat: Number.parseInt(
+                      this.planningResponse.result.Property.property_details.center_lat.substring(
+                        0,
+                        8
+                      )
+                    ),
+                    lng: Number.parseInt(
+                      this.planningResponse.result.Property.property_details.center_long.substring(
+                        0,
+                        8
+                      )
+                    ),
+                  },
+                  pov: { heading: 70, pitch: -10 },
+                });
 
-                // console.log(this.streetView);
-                // this.streetView.setVisible(true);
+                console.log(this.streetView);
+                this.streetView.setVisible(true);
               },
               (error) => console.error(error)
             );
