@@ -1,14 +1,17 @@
 import { Component, Inject, ViewChild } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { GoogleMap, GoogleMapsModule } from "@angular/google-maps";
+import * as xlsx from "xlsx";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
+import { ChartConfiguration, Chart, ChartType } from "chart.js";
+import { BaseChartDirective } from "ng2-charts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 @Component({
   selector: "app-home",
   templateUrl: "./home.component.html",
-  styleUrls: ["home.css"],
+  styleUrls: ["home.scss"],
 })
 export class HomeComponent {
   public response: IResponse;
@@ -18,7 +21,7 @@ export class HomeComponent {
   public loading: boolean;
   private _http: HttpClient;
   private _baseUrl: string;
-
+  private convertJson: string;
   private apiKey = "C1xvLXs4X17oJKAUNUNw9ak4U4cpQLB5quqDcpeh";
   private streetView: google.maps.StreetViewPanorama;
   private dummybody = {
@@ -33,6 +36,105 @@ export class HomeComponent {
     this.loading = false;
   }
 
+  public lineChartData: ChartConfiguration["data"] = {
+    datasets: [
+      {
+        data: [65, 59, 80, 81, 56, 55, 40],
+        label: "Series A",
+        backgroundColor: "rgba(148,159,177,0.2)",
+        borderColor: "rgba(148,159,177,1)",
+        pointBackgroundColor: "rgba(148,159,177,1)",
+        pointBorderColor: "#fff",
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: "rgba(148,159,177,0.8)",
+        fill: "origin",
+      },
+      {
+        data: [28, 48, 40, 19, 86, 27, 90],
+        label: "Series B",
+        backgroundColor: "rgba(77,83,96,0.2)",
+        borderColor: "rgba(77,83,96,1)",
+        pointBackgroundColor: "rgba(77,83,96,1)",
+        pointBorderColor: "#fff",
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: "rgba(77,83,96,1)",
+        fill: "origin",
+      },
+      {
+        data: [180, 480, 770, 90, 1000, 270, 400],
+        label: "Series C",
+        yAxisID: "y-axis-1",
+        backgroundColor: "rgba(255,0,0,0.3)",
+        borderColor: "red",
+        pointBackgroundColor: "rgba(148,159,177,1)",
+        pointBorderColor: "#fff",
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: "rgba(148,159,177,0.8)",
+        fill: "origin",
+      },
+    ],
+    labels: ["January", "February", "March", "April", "May", "June", "July"],
+  };
+
+  public lineChartOptions: ChartConfiguration["options"] = {
+    elements: {
+      line: {
+        tension: 0.5,
+      },
+    },
+    scales: {
+      // We use this empty structure as a placeholder for dynamic theming.
+      // x: {},
+      // 'y-axis-0':
+      //   {
+      //     position: 'left',
+      //   },
+      // 'y-axis-1': {
+      //   position: 'right',
+      //   grid: {
+      //     color: 'rgba(255,0,0,0.3)',
+      //   },
+      //   ticks: {
+      //     color: 'red'
+      //   }
+      // }
+    },
+
+    plugins: {
+      legend: { display: true },
+      annotation: {
+        annotations: [
+          {
+            type: "line",
+            scaleID: "x",
+            value: "March",
+            borderColor: "orange",
+            borderWidth: 2,
+            label: {
+              position: "center",
+              enabled: true,
+              color: "orange",
+              content: "LineAnno",
+              font: {
+                weight: "bold",
+              },
+            },
+          },
+        ],
+      },
+    },
+  };
+
+ 
+  // events
+
+
+ 
+
+  public lineChartType: ChartType = "line";
+
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+
   @ViewChild(GoogleMap) map!: GoogleMap;
 
   center: google.maps.LatLngLiteral;
@@ -46,17 +148,39 @@ export class HomeComponent {
     pdfMake.createPdf(docDefinition).open();
   }
 
+  fileUpload(event: any) {
+    console.log(event.target.files);
+    const selectedFile = event.target.files[0];
+
+    const fileReader = new FileReader();
+
+    fileReader.readAsBinaryString(selectedFile);
+    fileReader.onload = (event) => {
+      console.log(event);
+      let binaryData = event.target.result;
+      let workbook = xlsx.read(binaryData, { type: "binary", sheetRows: 14 });
+      console.log(workbook);
+      // setTimeout(function () {
+
+      // }, 5000);
+
+      var sn = workbook.SheetNames[0];
+
+      const data = xlsx.utils.sheet_to_json(workbook.Sheets[sn]);
+
+      this.convertJson = JSON.stringify(data);
+      console.log(this.convertJson);
+    };
+  }
+
   ngAfterViewInit() {
     // this.streetView = this.map.getStreetView();
-
     // this.streetView.setOptions({
     //    position: { lat: 38.9938386, lng: -77.2515373 },
     //    pov: { heading: 70, pitch: -10 },
     // });
-
     // this.streetView.setVisible(true);
   }
-
 
   check() {
     this.loading = true;
@@ -110,17 +234,22 @@ export class HomeComponent {
                     .center_long
                 );
 
-              
                 // -33.86620630039655, 151.20977064237633
                 this.center = {
-                  lat: Number.parseInt(this.planningResponse.result.Property.property_details.center_lat),
-                  lng: Number.parseInt(this.planningResponse.result.Property.property_details.center_long)
-                 };
-                 this.center = {
+                  lat: Number.parseInt(
+                    this.planningResponse.result.Property.property_details
+                      .center_lat
+                  ),
+                  lng: Number.parseInt(
+                    this.planningResponse.result.Property.property_details
+                      .center_long
+                  ),
+                };
+                this.center = {
                   lat: -33.86620630039655,
-                  lng: 151.20977064237633
-                 };
-                 
+                  lng: 151.20977064237633,
+                };
+
                 // this.streetView.setOptions({
                 //   position: {
                 //     lat: Number.parseInt(

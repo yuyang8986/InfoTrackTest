@@ -47,57 +47,114 @@
                   <h4>Fetched Archistar Property Planning Analysis</h4>
 
                   <p>property_details: center_lat {{planningResponse.result.Property.property_details.center_lat}} </p>
-                  <p>property_details: center_long {{planningResponse.result.Property.property_details.center_long}} </p>
-                  <p>property_details: lot_identifier {{planningResponse.result.Property.property_details.lot_identifier}}</p>
+                  <p>property_details: center_long {{planningResponse.result.Property.property_details.center_long}}
+                  </p>
+                  <p>property_details: lot_identifier
+                    {{planningResponse.result.Property.property_details.lot_identifier}}</p>
                   <br />
-                  <p>property_analysis - permitted_use_duplex: {{planningResponse.result.Property.property_analysis.permitted_use_duplex}}</p>
-                  <p>property_analysis - permitted_use_apartment: {{planningResponse.result.Property.property_analysis.permitted_use_apartment}}</p>
-                  <p>property_analysis - permitted_use_townhouse: {{planningResponse.result.Property.property_analysis.permitted_use_townhouse}}</p>
+                  <p>property_analysis - permitted_use_duplex:
+                    {{planningResponse.result.Property.property_analysis.permitted_use_duplex}}</p>
+                  <p>property_analysis - permitted_use_apartment:
+                    {{planningResponse.result.Property.property_analysis.permitted_use_apartment}}</p>
+                  <p>property_analysis - permitted_use_townhouse:
+                    {{planningResponse.result.Property.property_analysis.permitted_use_townhouse}}</p>
 
                   <br />
-                  <p>property_planning_details: zoning : {{planningResponse.result.Property.property_planning_details.zoning.code}}</p>
-                  <p>property_planning_details: lga: {{planningResponse.result.Property.property_planning_details.lga}}</p>
+                  <p>property_planning_details: zoning :
+                    {{planningResponse.result.Property.property_planning_details.zoning.code}}</p>
+                  <p>property_planning_details: lga: {{planningResponse.result.Property.property_planning_details.lga}}
+                  </p>
 
 
                 </div>
               </div>
-            </div>
-            <!--<div class="col-md-4">-->
-              <!--<div class="form-group">
-                <label for="email">Email ID</label>
-                <input type="email" class="form-control" name="email" id="email">
-              </div>
-              <div class="form-group">
-                <label for="contactNo">Contact No.</label>
-                <input type="number" class="form-control" name="contactNo" id="contactNo">
-              </div>-->
-            <!--</div>-->
+            </div>          
           </div>
         </div>
       </div>
-    <div class="card border-secondary mt-2">
-        <div class="card-body">
-          <h4 class="card-title">Additional Details</h4>
-          <div class="form-group">
-            <!--<textarea class="form-control" name="additionalDetails" rows="3"></textarea>-->
-          </div>
-        </div>
-      </div>
+
 
     </div>
     <div class="col-md-4">
-      <button type="button" name="" class="btn btn-secondary btn-lg btn-block" (click)="fetchArchistarSuggest(street.value, city.value, postcode.value)">Fetch data from Archistar</button>
-      <button type="button" name="" class="btn btn-secondary btn-lg btn-block" (click)="check()">Get Crime Reports</button>
-      <button type="button" name="" class="btn btn-secondary btn-lg btn-block" (click)="generatePDF()">Generate Report</button>
+      <button type="button" name="" class="btn btn-secondary btn-lg btn-block"
+        (click)="fetchArchistarSuggest(street.value, city.value, postcode.value)">Fetch data from Archistar</button>
+      <button type="button" name="" class="btn btn-secondary btn-lg btn-block" (click)="check()">Get Crime
+        Reports</button>
+      <button type="button" name="" class="btn btn-secondary btn-lg btn-block" (click)="generatePDF()">Generate
+        Report</button>
     </div>
   </div>
-</div>
+
+  <br />
+  <h2>Upload Crime Data</h2>
+  <br />
+
+
+  <p *ngIf="convertJson">
+      {{convertJson}}
+  </p>
+  <!-- Upload  -->
+  <form id="file-upload-form" class="uploader" *ngIf="!convertJson">
+    <input id="file-upload" type="file" name="fileUpload" accept="image/*" (change)="fileUpload($event)" />
+
+    <label for="file-upload" id="file-drag">
+      <img id="file-image" src="#" alt="Preview" class="hidden">
+      <div id="start">
+        <i class="fa fa-download" aria-hidden="true"></i>
+        <div>Select a file or drag here</div>
+        <div id="notimage" class="hidden">Please select an image</div>
+        <span id="file-upload-btn" class="btn btn-primary">Select a file</span>
+      </div>
+      <div id="response" class="hidden">
+        <div id="messages"></div>
+        <progress class="progress" id="file-progress" value="0">
+          <span>0</span>%
+        </progress>
+      </div>
+    </label>
+  </form>
+  <br />
+
+
+  <div class="flex">
+    <div class="flex-item">
+      <div style="display: block;">
+      <canvas baseChart width="400" height="400"
+                  [data]="lineChartData"
+                  [options]="lineChartOptions"
+                  [type]="lineChartType"
+                  (chartHover)="chartHovered($event)"
+                  (chartClick)="chartClicked($event)"></canvas>
+      </div>
+    </div>
+    <div class="flex-item">
+      <table class="table table-responsive table-condensed">
+        <tr>
+          <th *ngFor="let label of lineChartData.labels">{{label}}</th>
+        </tr>
+        <tr *ngFor="let d of lineChartData.datasets; let i=index" [class]="'line-'+i">
+          <td *ngFor="let label of lineChartData.labels; let j=index">{{d && d.data[j]}}</td>
+        </tr>
+      </table>
+      <div class="button-row">
+        <button mat-button mat-raised-button color="primary" (click)="randomize()">Randomize</button>
+        <button mat-button mat-raised-button color="primary" (click)="pushOne()">Push</button>
+        <button mat-button mat-raised-button color="primary" (click)="changeColor()">Recolor</button>
+        <button mat-button mat-raised-button color="primary" (click)="hideOne()">Toggle Series B</button>
+        <button mat-button mat-raised-button color="primary" (click)="changeLabel()">Change Label</button>
+      </div>
+    </div>
+  </div>
 
 
 
 
-<div class="my-google-map">
-  <google-map [center]="center">
-     <!-- <map-marker [position]="marker.position"></map-marker> -->
-  </google-map>
+
+  <br />
+
+  <div class="my-google-map">
+    <google-map [center]="center">
+      <!-- <map-marker [position]="marker.position"></map-marker> -->
+    </google-map>
+  </div>
 </div>
