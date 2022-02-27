@@ -2,6 +2,9 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "../out-tsc/spec",
+    "paths": {
+      "@angular/*": ["./node_modules/@angular/*"]
+    },
     "types": [
       "jasmine",
       "node"
